@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const cookieSession = require('cookie-session');
 
 const FeedbackService = require('./services/FeedbackService');
 const SpeakersService = require('./services/SpeakerService');
@@ -13,10 +14,31 @@ const app = express();
 
 const port = 3000;
 
+app.set('trust proxy', 1);
+
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: ['sdawdsawdsa', '1234edasceas'],
+  })
+);
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, './views'));
 
+app.locals.siteName = 'ROUX Meetups';
+
 app.use(express.static(path.join(__dirname, './static')));
+
+app.use(async (request, response, next) => {
+  try {
+    const names = await speakerService.getNames();
+    response.locals.speakerNames = names;
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+});
 
 app.use(
   '/',
